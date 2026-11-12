@@ -28,7 +28,7 @@ const fr = {
   'events.link': 'voir l’event',
   'events.lineup': 'line-up',
   'sets.title': 'les sets',
-  'sets.intro': 'tous les sets de la crew, compilés dans une seule playlist.',
+  'sets.intro': 'tous les sets du crew, compilés dans une seule playlist.',
   'sets.play': 'lancer la playlist',
   'sets.openYoutube': 'ouvrir la playlist sur youtube',
   'sets.list': 'tous les sets',

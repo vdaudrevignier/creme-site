@@ -9,10 +9,15 @@ bio:
     Fast sets, maximum pressure, overheated dancefloors — from Rex Club to Tokyo, via Bordeaux and Paris.
 
     EVERYTHING 160.
-links: {}
+links:
+  youtube: https://www.youtube.com/@toyotapepper
+  soundcloud: https://soundcloud.com/toyotapepper69420
 embed:
-  provider: soundcloud
-  src: https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/soundcloud%253Aplaylists%253A2208772946&color=%234140e0&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true
+  - provider: soundcloud
+    src: https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/soundcloud%253Aplaylists%253A2208772946&color=%234140e0&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true
+  # uploads playlist of the channel (UC… → UU…), always shows the latest videos
+  - provider: youtube
+    src: https://www.youtube-nocookie.com/embed/videoseries?list=UU1ga7TPkyfjGVDAJrYrB7CQ&rel=0
 gigs:
   - date: 2026-01-17
     city: PARIS

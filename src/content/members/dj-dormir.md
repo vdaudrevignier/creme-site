@@ -6,7 +6,7 @@ photoAlt:
   fr: DJ DORMIR, il est fatiger
   en: DJ DORMIR, he is tired
 bio:
-  en: Original DJ Dormir A.K.A. DJ Réveiller A.K.A. VKO.
+  en: DJ Dormir is a sleepyhead from Paris who blends a wide range of influences in his sets, from the ghetto spectrum to Latin club, by way of jungle and drum'n'bass.
 links:
   instagram: https://www.instagram.com/dj_dormir/
   soundcloud: https://soundcloud.com/user-377987493-111891475/sets/my-sets
