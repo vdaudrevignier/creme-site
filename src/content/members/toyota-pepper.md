@@ -34,7 +34,7 @@ gigs:
     venue: Chipie Club w/ Ultrapoisonous
   - date: 2024-09-19
     city: TOKYO
-    venue: WPU SHinjukuw
+    venue: WPÜ Shinjuku
   - date: 2024-09-08
     city: PARIS
     venue: C.R.E.M.E Launching Party
