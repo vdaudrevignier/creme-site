@@ -1,0 +1,33 @@
+:root {
+  /* Phosphor palette */
+  --bg: #050805;
+  --bg-raised: #0b120c;
+  --line: #1d3a22;
+  --fg: #b8ffc8;
+  --fg-dim: #5f9a6c;
+  --accent: #39ff7a; /* phosphor green */
+  --accent-2: #ff4fd8; /* meme magenta */
+  --warn: #ffb000; /* amber */
+  --glow: 0 0 6px color-mix(in srgb, var(--accent) 60%, transparent);
+
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  --font-pixel: 'VT323', var(--font-mono);
+
+  --step--1: 0.8125rem;
+  --step-0: 0.9375rem;
+  --step-1: 1.25rem;
+  --step-2: 1.75rem;
+  --step-3: clamp(2.25rem, 6vw, 3.5rem);
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+  --space-5: 2.5rem;
+  --space-6: 4rem;
+
+  --radius: 4px;
+  --max-width: 72rem;
+
+  color-scheme: dark;
+}

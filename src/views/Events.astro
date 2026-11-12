@@ -1,0 +1,47 @@
+---
+import Base from '../layouts/Base.astro';
+import TerminalWindow from '../components/TerminalWindow.astro';
+import EventCard from '../components/EventCard.astro';
+import { useTranslations, type Lang } from '../i18n/ui';
+import { getEvents } from '../lib/content';
+
+const lang = Astro.currentLocale as Lang;
+const t = useTranslations(lang);
+const { upcoming, past } = await getEvents();
+---
+
+<Base title={t('events.title')}>
+  <div class="container stack">
+    <TerminalWindow title="~/events" command="ls ./upcoming">
+      <h1>{t('events.upcoming')}</h1>
+      {upcoming.length === 0 && <p class="dim">{t('events.none')}</p>}
+      <div class="list">
+        {upcoming.map((event) => (
+          <EventCard event={event} lang={lang} />
+        ))}
+      </div>
+    </TerminalWindow>
+
+    {past.length > 0 && (
+      <TerminalWindow title="~/events" command="ls ./past">
+        <h2>{t('events.past')}</h2>
+        <div class="list">
+          {past.map((event) => (
+            <EventCard event={event} lang={lang} />
+          ))}
+        </div>
+      </TerminalWindow>
+    )}
+  </div>
+</Base>
+
+<style>
+  .stack {
+    display: grid;
+    gap: var(--space-5);
+  }
+  .list {
+    display: grid;
+    gap: var(--space-4);
+  }
+</style>

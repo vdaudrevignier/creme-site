@@ -1,0 +1,137 @@
+---
+import { getImage } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import TerminalWindow from '../components/TerminalWindow.astro';
+import MemberCard from '../components/MemberCard.astro';
+import EventCard from '../components/EventCard.astro';
+import { localePath, useTranslations, type Lang } from '../i18n/ui';
+import { getEvents, getMembers } from '../lib/content';
+import logoSrc from '../assets/logo.png';
+
+const lang = Astro.currentLocale as Lang;
+const t = useTranslations(lang);
+const members = await getMembers();
+const { upcoming, past } = await getEvents();
+const logo = await getImage({ src: logoSrc, width: 1200, format: 'webp' });
+
+const boot = [
+  ['OK', 'mounting /dev/subwoofer'],
+  ['OK', 'loading memes .......... 100%'],
+  ['OK', 'syncing paris <-> toulouse'],
+  ['OK', `${members.length} djs online`],
+];
+---
+
+<Base>
+  <div class="container stack">
+    <section class="hero">
+      <h1 class="logo" style={`--logo: url(${logo.src})`}>
+        <span class="sr-only">C.R.E.M.E</span>
+      </h1>
+      <ol class="boot" aria-hidden="true">
+        {boot.map(([status, line], i) => (
+          <li style={`--i: ${i}`}>
+            [ <span class="ok">{status}</span> ] {line}
+          </li>
+        ))}
+      </ol>
+      <p class="tagline cursor">{t('site.tagline')}</p>
+    </section>
+
+    <TerminalWindow title="~/about" command="cat README.txt">
+      {t('about.text').map((p) => (
+        <p>{p}</p>
+      ))}
+    </TerminalWindow>
+
+    <TerminalWindow
+      title="~/events"
+      command={upcoming.length ? 'ls ./upcoming' : 'ls ./past | head -3'}
+    >
+      <h2>{upcoming.length ? t('events.upcoming') : t('events.past')}</h2>
+      {upcoming.length === 0 && <p class="dim">{t('events.none')}</p>}
+      <div class="events">
+        {(upcoming.length ? upcoming : past.slice(0, 3)).map((event) => (
+          <EventCard event={event} lang={lang} />
+        ))}
+      </div>
+      <p>
+        <a href={localePath(lang, '/events')}>&gt; {t('events.seeAll')}</a>
+      </p>
+    </TerminalWindow>
+
+    <TerminalWindow title="~/members" command="ls -la ./members">
+      <h2>{t('members.title')}</h2>
+      <ul class="members">
+        {members.map((member) => (
+          <li>
+            <MemberCard member={member} lang={lang} />
+          </li>
+        ))}
+      </ul>
+    </TerminalWindow>
+  </div>
+</Base>
+
+<style>
+  .stack {
+    display: grid;
+    gap: var(--space-5);
+  }
+  .hero {
+    padding-block: var(--space-4);
+  }
+  .logo {
+    width: min(100%, 40rem);
+    aspect-ratio: 1600 / 416;
+    margin: 0 0 var(--space-4);
+    background: var(--accent);
+    mask: var(--logo) center / contain no-repeat;
+    -webkit-mask: var(--logo) center / contain no-repeat;
+    filter: drop-shadow(0 0 10px rgb(57 255 122 / 0.5));
+  }
+  .boot {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-3);
+    font-size: var(--step--1);
+    color: var(--fg-dim);
+  }
+  .boot li {
+    opacity: 0;
+    animation: appear 0.01s forwards;
+    animation-delay: calc(var(--i) * 250ms + 200ms);
+  }
+  .ok {
+    color: var(--accent);
+  }
+  .tagline {
+    font-family: var(--font-pixel);
+    font-size: var(--step-2);
+    color: var(--accent-2);
+    margin: 0;
+  }
+  .events {
+    display: grid;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+  .members {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 10rem), 1fr));
+    gap: var(--space-4);
+  }
+  @keyframes appear {
+    to {
+      opacity: 1;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .boot li {
+      opacity: 1;
+    }
+  }
+</style>

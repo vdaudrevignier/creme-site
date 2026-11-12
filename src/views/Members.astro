@@ -1,0 +1,37 @@
+---
+import Base from '../layouts/Base.astro';
+import TerminalWindow from '../components/TerminalWindow.astro';
+import MemberCard from '../components/MemberCard.astro';
+import { useTranslations, type Lang } from '../i18n/ui';
+import { getMembers } from '../lib/content';
+
+const lang = Astro.currentLocale as Lang;
+const t = useTranslations(lang);
+const members = await getMembers();
+---
+
+<Base title={t('members.title')}>
+  <div class="container">
+    <TerminalWindow title="~/members" command="ls -la ./members">
+      <h1>{t('members.title')}</h1>
+      <ul class="members">
+        {members.map((member) => (
+          <li>
+            <MemberCard member={member} lang={lang} />
+          </li>
+        ))}
+      </ul>
+    </TerminalWindow>
+  </div>
+</Base>
+
+<style>
+  .members {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr));
+    gap: var(--space-4);
+  }
+</style>

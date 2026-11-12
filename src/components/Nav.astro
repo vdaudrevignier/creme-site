@@ -1,0 +1,101 @@
+---
+import { localePath, useTranslations, type Lang } from '../i18n/ui';
+import { SOCIALS } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+  basePath: string;
+}
+
+const { lang, basePath } = Astro.props;
+const t = useTranslations(lang);
+const other: Lang = lang === 'fr' ? 'en' : 'fr';
+
+const items = [
+  { path: '/', label: t('nav.home') },
+  { path: '/members', label: t('nav.members') },
+  { path: '/events', label: t('nav.events') },
+];
+const isActive = (path: string) =>
+  path === '/' ? basePath === '/' : basePath === path || basePath.startsWith(`${path}/`);
+---
+
+<header class="bar">
+  <nav class="container inner" aria-label="Navigation">
+    <a class="brand" href={localePath(lang, '/')}>
+      [creme]
+    </a>
+    <ul>
+      {items.map((item, i) => (
+        <li>
+          <a
+            href={localePath(lang, item.path)}
+            aria-current={isActive(item.path) ? 'page' : undefined}
+          >
+            <span class="dim">{i}:</span>
+            {item.label}
+          </a>
+        </li>
+      ))}
+      <li>
+        <a href={`mailto:${SOCIALS.email}`}>
+          <span class="dim">{items.length}:</span>
+          {t('nav.contact')}
+        </a>
+      </li>
+    </ul>
+    <a class="lang" href={localePath(other, basePath)} hreflang={other} lang={other}>
+      <span class="sr-only">{t('lang.switch')}</span>
+      <span aria-hidden="true">
+        {lang.toUpperCase()}/<span class="dim">{other.toUpperCase()}</span>
+      </span>
+    </a>
+  </nav>
+</header>
+
+<style>
+  .bar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--accent);
+    color: var(--bg);
+    font-size: var(--step--1);
+  }
+  .inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    padding-block: var(--space-1);
+  }
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex: 1;
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
+    padding-inline: var(--space-1);
+  }
+  a:hover,
+  a[aria-current='page'] {
+    background: var(--bg);
+    color: var(--accent);
+  }
+  a[aria-current='page'] .dim::after {
+    content: '*';
+  }
+  .dim {
+    color: inherit;
+    opacity: 0.6;
+  }
+  .brand {
+    font-weight: 800;
+  }
+</style>

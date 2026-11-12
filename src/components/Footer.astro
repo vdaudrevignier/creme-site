@@ -1,0 +1,47 @@
+---
+import { useTranslations, type Lang } from '../i18n/ui';
+import { SOCIALS } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const t = useTranslations(Astro.props.lang);
+const year = new Date().getFullYear();
+---
+
+<footer>
+  <div class="container inner">
+    <p>
+      <span class="dim">{t('footer.follow')}:</span>
+      <a href={SOCIALS.instagram} rel="noopener" target="_blank">
+        instagram
+      </a>
+      <span class="dim">/</span>
+      <a href={SOCIALS.facebook} rel="noopener" target="_blank">
+        facebook
+      </a>
+    </p>
+    <p>
+      <span class="dim">{t('footer.contact')}:</span>
+      <a href={`mailto:${SOCIALS.email}`}>{SOCIALS.email}</a>
+    </p>
+    <p class="dim">© {year} C.R.E.M.E — Paris / Toulouse</p>
+  </div>
+</footer>
+
+<style>
+  footer {
+    border-top: 1px dashed var(--line);
+    font-size: var(--step--1);
+    padding-block: var(--space-4);
+  }
+  .inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
+  }
+  p {
+    margin: 0;
+  }
+</style>

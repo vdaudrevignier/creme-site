@@ -1,0 +1,68 @@
+---
+import '@fontsource-variable/jetbrains-mono';
+import '@fontsource/vt323';
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { defaultLang, languages, localePath, useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+
+const lang = (Astro.currentLocale ?? defaultLang) as Lang;
+const t = useTranslations(lang);
+const { title, description = t('site.description'), image } = Astro.props;
+const fullTitle = title
+  ? `${title} // C.R.E.M.E`
+  : 'C.R.E.M.E // conseil régional of electronic music elites';
+
+// Same page in every language, for hreflang and the language switch.
+const basePath = Astro.url.pathname.replace(/^\/en(?=\/|$)/, '') || '/';
+const alternates = (Object.keys(languages) as Lang[]).map((l) => ({
+  lang: l,
+  href: new URL(localePath(l, basePath), Astro.site ?? Astro.url).href,
+}));
+const ogImage = image ? new URL(image, Astro.site ?? Astro.url).href : undefined;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site ?? Astro.url).href} />
+    {alternates.map((a) => (
+      <link rel="alternate" hreflang={a.lang} href={a.href} />
+    ))}
+    <meta name="theme-color" content="#050805" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="C.R.E.M.E" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content={lang === 'fr' ? 'fr_FR' : 'en_GB'} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+  </head>
+  <body>
+    <a class="sr-only" href="#main">
+      skip
+    </a>
+    <Nav lang={lang} basePath={basePath} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+  </body>
+</html>
+
+<style>
+  main {
+    flex: 1;
+    padding-block: var(--space-5);
+  }
+</style>

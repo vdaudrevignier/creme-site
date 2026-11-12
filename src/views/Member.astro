@@ -1,0 +1,168 @@
+---
+import { Image, getImage } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import TerminalWindow from '../components/TerminalWindow.astro';
+import { formatDate, localePath, pick, useTranslations, type Lang } from '../i18n/ui';
+import type { Member } from '../lib/content';
+
+interface Props {
+  member: Member;
+}
+
+const { member } = Astro.props;
+const lang = Astro.currentLocale as Lang;
+const t = useTranslations(lang);
+const { name, photo, links, embed, gigs, gallery } = member.data;
+const bio = pick(member.data.bio, lang);
+const og = await getImage({ src: photo, width: 1200, height: 1200, fit: 'cover', format: 'jpg' });
+const gigsSorted = [...gigs].sort((a, b) => b.date.getTime() - a.date.getTime());
+const path = `~/members/${member.id}`;
+---
+
+<Base title={name} description={bio?.split('\n')[0]} image={og.src}>
+  <div class="container stack">
+    <p>
+      <a href={localePath(lang, '/members')}>
+        &lt; cd .. <span class="dim">({t('members.back')})</span>
+      </a>
+    </p>
+
+    <TerminalWindow title={path} command={`whoami`}>
+      <div class="profile">
+        <Image class="photo" src={photo} alt={name} width={600} height={600} fit="cover" />
+        <div>
+          <h1>{name}</h1>
+          {bio && bio.split(/\n{2,}/).map((p) => <p class="bio">{p}</p>)}
+          {Object.keys(links).length > 0 && (
+            <ul class="links" aria-label={t('members.links')}>
+              {Object.entries(links).map(([kind, href]) => (
+                <li>
+                  <a href={href} target="_blank" rel="noopener">
+                    [{kind} ↗]
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    </TerminalWindow>
+
+    {embed && (
+      <TerminalWindow title={path} command={`play --source ${embed.provider}`}>
+        <h2 class="sr-only">{t('members.listen')}</h2>
+        <iframe
+          class:list={['player', embed.provider]}
+          src={embed.src}
+          title={`${name} — ${embed.provider}`}
+          loading="lazy"
+          allow="autoplay; encrypted-media"
+        />
+      </TerminalWindow>
+    )}
+
+    {gigsSorted.length > 0 && (
+      <TerminalWindow title={path} command="cat gigs.log">
+        <h2>{t('members.gigs')}</h2>
+        <ul class="gigs">
+          {gigsSorted.map((gig) => (
+            <li>
+              <time datetime={gig.date.toISOString().slice(0, 10)}>
+                {formatDate(gig.date, lang)}
+              </time>
+              <span class="city">{gig.city}</span>
+              <span>@ {gig.venue}</span>
+            </li>
+          ))}
+        </ul>
+      </TerminalWindow>
+    )}
+
+    {gallery.length > 0 && (
+      <TerminalWindow title={path} command="ls ./pics">
+        <h2>{t('members.gallery')}</h2>
+        <div class="gallery">
+          {gallery.map((img) => (
+            <Image src={img} alt={name} width={700} loading="lazy" />
+          ))}
+        </div>
+      </TerminalWindow>
+    )}
+  </div>
+</Base>
+
+<style>
+  .stack {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .profile {
+    display: grid;
+    grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .profile :global(.photo) {
+    width: 100%;
+    border: 1px solid var(--line);
+  }
+  .bio {
+    white-space: pre-line;
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+    list-style: none;
+    padding: 0;
+    margin: var(--space-3) 0 0;
+  }
+  .player {
+    display: block;
+    width: 100%;
+    border: 0;
+    height: 300px;
+  }
+  .player.mixcloud {
+    height: 120px;
+  }
+  .gigs {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: var(--step--1);
+    columns: 2 22rem;
+    column-gap: var(--space-5);
+  }
+  .gigs li {
+    display: grid;
+    grid-template-columns: 6em 9em 1fr;
+    gap: var(--space-2);
+    break-inside: avoid;
+  }
+  .gigs time {
+    color: var(--warn);
+  }
+  .city {
+    color: var(--fg-dim);
+  }
+  .gallery {
+    columns: 3 14rem;
+    column-gap: var(--space-3);
+  }
+  .gallery :global(img) {
+    margin-bottom: var(--space-3);
+    border: 1px solid var(--line);
+  }
+  @media (max-width: 40rem) {
+    .profile {
+      grid-template-columns: 1fr;
+    }
+    .gigs li {
+      grid-template-columns: 6em 1fr;
+    }
+    .gigs li > :last-child {
+      grid-column: 2;
+    }
+  }
+</style>

@@ -1,0 +1,83 @@
+---
+interface Props {
+  /** Shown in the title bar, e.g. "~/creme/members". */
+  title: string;
+  /** Optional command printed as the first prompt line. */
+  command?: string;
+  id?: string;
+  class?: string;
+}
+
+const { title, command, id, class: className } = Astro.props;
+---
+
+<section class:list={['term', className]} id={id}>
+  <div class="titlebar" aria-hidden="true">
+    <span class="dots">
+      <i></i>
+      <i></i>
+      <i></i>
+    </span>
+    <span class="title">{title}</span>
+  </div>
+  <div class="body">
+    {command && (
+      <p class="prompt">
+        <span class="ps1">creme@crew:{title}$</span> {command}
+      </p>
+    )}
+    <slot />
+  </div>
+</section>
+
+<style>
+  .term {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-raised);
+    box-shadow:
+      0 0 0 1px rgb(0 0 0 / 0.6),
+      0 0 24px rgb(57 255 122 / 0.06);
+  }
+  .titlebar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-1) var(--space-3);
+    border-bottom: 1px solid var(--line);
+    font-size: var(--step--1);
+    color: var(--fg-dim);
+  }
+  .dots {
+    display: flex;
+    gap: 6px;
+  }
+  .dots i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px solid var(--fg-dim);
+  }
+  .dots i:first-child {
+    background: var(--accent-2);
+    border-color: var(--accent-2);
+  }
+  .title {
+    flex: 1;
+    text-align: center;
+    margin-right: 42px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .body {
+    padding: var(--space-4) var(--space-3);
+  }
+  .prompt {
+    color: var(--fg);
+    overflow-wrap: anywhere;
+  }
+  .ps1 {
+    color: var(--accent);
+  }
+</style>
