@@ -9,11 +9,15 @@ bio:
   en: Original DJ Dormir A.K.A. DJ Réveiller A.K.A. VKO.
 links:
   instagram: https://www.instagram.com/dj_dormir/
-  soundcloud: https://soundcloud.com/user-377987493-111891475
+  soundcloud: https://soundcloud.com/user-377987493-111891475/sets/my-sets
+  youtube: https://www.youtube.com/@djdormiroff
   mixcloud: https://www.mixcloud.com/VKO_Music/
 embed:
-  provider: soundcloud
-  src: https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%253Atracks%253A2020577681&color=%234140e0&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true
+  - provider: soundcloud
+    src: https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/2328187518&color=%234140e0&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true
+  # uploads playlist of the channel (UC… → UU…), always shows the latest sets
+  - provider: youtube
+    src: https://www.youtube-nocookie.com/embed/videoseries?list=UUwXTvxf0fAaCx57BSj5QSKQ&rel=0
 gigs: []
 gallery:
   - ../../assets/members/dj-dormir/01.jpg

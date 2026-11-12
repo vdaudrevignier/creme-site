@@ -4,6 +4,11 @@ import { z } from 'astro/zod';
 
 const i18nText = z.object({ fr: z.string().optional(), en: z.string().optional() });
 
+const embedSchema = z.object({
+  provider: z.enum(['soundcloud', 'mixcloud', 'youtube']),
+  src: z.url(),
+});
+
 const members = defineCollection({
   loader: glob({ pattern: '*.md', base: './src/content/members' }),
   schema: ({ image }) =>
@@ -26,7 +31,11 @@ const members = defineCollection({
         })
         .partial()
         .default({}),
-      embed: z.object({ provider: z.enum(['soundcloud', 'mixcloud']), src: z.url() }).optional(),
+      /** One player or several (shown one under the other). */
+      embed: z
+        .union([embedSchema, z.array(embedSchema)])
+        .optional()
+        .transform((e) => (e === undefined ? [] : Array.isArray(e) ? e : [e])),
       gigs: z
         .array(z.object({ date: z.coerce.date(), city: z.string(), venue: z.string() }))
         .default([]),

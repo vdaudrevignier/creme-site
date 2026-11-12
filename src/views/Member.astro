@@ -57,18 +57,19 @@ const path = `~/members/${member.id}`;
       </div>
     </TerminalWindow>
 
-    {embed && (
-      <TerminalWindow title={path} command={`play --source ${embed.provider}`}>
-        <h2 class="sr-only">{t('members.listen')}</h2>
+    {embed.map((player, i) => (
+      <TerminalWindow title={path} command={`play --source ${player.provider}`}>
+        {i === 0 && <h2 class="sr-only">{t('members.listen')}</h2>}
         <iframe
-          class:list={['player', embed.provider]}
-          src={embed.src}
-          title={`${name} — ${embed.provider}`}
+          class:list={['player', player.provider]}
+          src={player.src}
+          title={`${name} — ${player.provider}`}
           loading="lazy"
-          allow="autoplay; encrypted-media"
+          allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+          allowfullscreen={player.provider === 'youtube'}
         />
       </TerminalWindow>
-    )}
+    ))}
 
     {gigsSorted.length > 0 && (
       <TerminalWindow title={path} command="cat gigs.log">
@@ -134,6 +135,10 @@ const path = `~/members/${member.id}`;
   }
   .player.mixcloud {
     height: 120px;
+  }
+  .player.youtube {
+    height: auto;
+    aspect-ratio: 16 / 9;
   }
   .gigs {
     list-style: none;
