@@ -20,6 +20,7 @@ const members = defineCollection({
           soundcloud: z.url(),
           mixcloud: z.url(),
           bandcamp: z.url(),
+          youtube: z.url(),
           facebook: z.url(),
           website: z.url(),
         })

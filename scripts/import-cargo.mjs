@@ -79,6 +79,7 @@ function extOf(name) {
 const LINK_KINDS = [
   ['instagram', /instagram\.com/],
   ['soundcloud', /soundcloud\.com/],
+  ['youtube', /youtube\.com|youtu\.be/],
   ['mixcloud', /mixcloud\.com/],
   ['bandcamp', /bandcamp\.com/],
   ['facebook', /facebook\.com|fb\.me/],

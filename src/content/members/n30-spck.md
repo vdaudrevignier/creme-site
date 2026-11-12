@@ -7,6 +7,7 @@ bio:
 links:
   soundcloud: https://soundcloud.com/corus-528271792
   mixcloud: https://www.mixcloud.com/n30_SPCK/
+  youtube: https://www.youtube.com/watch?v=cShsBYjA1n4
 embed:
   provider: soundcloud
   src: https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%253Atracks%253A1966478831&color=%234140e0&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true

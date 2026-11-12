@@ -1,6 +1,6 @@
 # C.R.E.M.E — site web
 
-Site vitrine du collectif de DJs **C.R.E.M.E** (_conseil régional of electronic music elites_), Paris / Toulouse.
+Site vitrine du collectif de DJs **C.R.E.M.E** (_conseil régional of electronic music enthusiasts_), Paris / Toulouse.
 
 Construit avec [Astro](https://astro.build) et hébergé sur Cloudflare Pages.
 

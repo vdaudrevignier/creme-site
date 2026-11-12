@@ -19,7 +19,7 @@ const t = useTranslations(lang);
 const { title, description = t('site.description'), image } = Astro.props;
 const fullTitle = title
   ? `${title} // C.R.E.M.E`
-  : 'C.R.E.M.E // conseil régional of electronic music elites';
+  : 'C.R.E.M.E // conseil régional of electronic music enthusiasts';
 
 // Same page in every language, for hreflang and the language switch.
 const basePath = Astro.url.pathname.replace(/^\/en(?=\/|$)/, '') || '/';

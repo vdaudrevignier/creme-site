@@ -5,9 +5,9 @@ export type Lang = keyof typeof languages;
 export const defaultLang: Lang = 'fr';
 
 const fr = {
-  'site.tagline': 'conseil régional of electronic music elites',
+  'site.tagline': 'conseil régional of electronic music enthusiasts',
   'site.description':
-    'C.R.E.M.E, collectif de DJs de Paris et Toulouse : bass music, techno, footwork et post-club.',
+    'C.R.E.M.E, collectif de DJs de Paris et Toulouse né des memes : jungle, UK garage, dubstep, footwork, jersey club, house, techno, trance, latin club…',
   'nav.home': 'accueil',
   'nav.members': 'membres',
   'nav.events': 'events',
@@ -15,7 +15,9 @@ const fr = {
   'about.title': 'à propos',
   'about.text': [
     'La C.R.E.M.E est un collectif de DJs originaires de Paris et Toulouse.',
-    'Tout d’abord unis par la culture internet des groupes de memes, ses artistes se sont aujourd’hui rassemblés autour d’une passion commune : les différents styles de bass music, techno, footwork et post-club.',
+    'Créateurs de memes à l’origine, ses membres se sont rencontrés en ligne, via les pages de memes, les groupes Facebook et la culture internet, avant de se retrouver autour de la musique électronique et du DJing.',
+    'Fervents diggers, ils proposent des sélections qui couvrent un large champ des possibles : de la bass music britannique (jungle, UK garage, dubstep, grime, drum & bass) aux styles américains de ghetto music (footwork, juke, jersey club, electro, ghettotech), en passant par les vastes répertoires de la house et de la techno, jusqu’à la trance et le latin club.',
+    'Avec C.R.E.M.E, l’objectif est d’organiser des soirées chaleureuses, inclusives et un peu zinzin, où toutes les formes de musique électronique ont leur place sur le dancefloor.',
   ],
   'events.title': 'événements',
   'events.upcoming': 'à venir',
@@ -41,9 +43,9 @@ const fr = {
 export type UiKey = keyof typeof fr;
 
 const en: Record<UiKey, string | readonly string[]> = {
-  'site.tagline': 'conseil régional of electronic music elites',
+  'site.tagline': 'conseil régional of electronic music enthusiasts',
   'site.description':
-    'C.R.E.M.E, a DJ collective from Paris and Toulouse: bass music, techno, footwork and post-club.',
+    'C.R.E.M.E, a DJ collective from Paris and Toulouse born from memes: jungle, UK garage, dubstep, footwork, jersey club, house, techno, trance, latin club…',
   'nav.home': 'home',
   'nav.members': 'members',
   'nav.events': 'events',
@@ -51,7 +53,9 @@ const en: Record<UiKey, string | readonly string[]> = {
   'about.title': 'about',
   'about.text': [
     'C.R.E.M.E is a DJ collective from Paris and Toulouse.',
-    'First brought together by the internet culture of meme groups, its artists now share a common passion: bass music, techno, footwork and post-club in all their forms.',
+    'Meme makers at heart, its members first met online, through meme pages, Facebook groups and internet culture, before coming together around electronic music and DJing.',
+    'Dedicated diggers, they play selections that cover a wide field of possibilities: from UK bass music (jungle, UK garage, dubstep, grime, drum & bass) to American ghetto music (footwork, juke, jersey club, electro, ghettotech), through the vast repertoires of house and techno, all the way to trance and latin club.',
+    'With C.R.E.M.E, the goal is to throw warm, inclusive and slightly bonkers parties, where every form of electronic music has its place on the dancefloor.',
   ],
   'events.title': 'events',
   'events.upcoming': 'upcoming',
