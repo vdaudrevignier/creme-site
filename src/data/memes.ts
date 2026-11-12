@@ -33,7 +33,7 @@ export const memes: Record<Lang, MemeCopy> = {
       'MÉTÉO : averses de sub-bass sur Paris et Toulouse',
       'TOYOTA PEPPER refuse de descendre sous 160 BPM, les autorités dépassées',
       'DJ DORMIR il est fatiger, plus d’infos à suivre',
-      'DJ DORMIR s\'est perdu dans le club, contactez la police si vous le voyez',
+      "DJ DORMIR s'est perdu dans le club, contactez la police si vous le voyez",
       'DJ LOGITECH confirme : sa souris est bien sans fil',
       'SONDAGE : 100% des membres préfèrent les memes aux slides PowerPoint',
       'BOURSE : le cours du footwork en hausse de 808%',
