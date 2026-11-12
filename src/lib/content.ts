@@ -27,6 +27,29 @@ export const SOCIALS = {
   email: 'cremedjcrew@gmail.com',
 } as const;
 
+/**
+ * Legal notice data (LCEN art. 6 III). `address` is mandatory for an association:
+ * the legal page shows a visible warning until it is filled in.
+ */
+export const LEGAL = {
+  association: 'C.R.E.M.E Collective',
+  form: { fr: 'association loi 1901', en: 'non-profit association (French law of 1901)' },
+  /** Registered office, e.g. "12 rue Exemple, 75011 Paris". */
+  address: '4 rue Jules Ferry, appartement 8, 92130 Issy-les-Moulineaux, France',
+  /** RNA number from the Journal officiel, e.g. "W751234567". Optional. */
+  rna: 'W923012335',
+  /** SIREN number (INSEE). Optional. */
+  siren: '108 183 625',
+  publisher: 'Victor Daudré-Vignier',
+  host: {
+    name: 'Cloudflare, Inc.',
+    address: '101 Townsend St, San Francisco, CA 94107, USA',
+    phone: '+1 650 319 8930',
+    url: 'https://www.cloudflare.com',
+  },
+  updated: '2026-11-12',
+} as const;
+
 /** YouTube playlist compiling every C.R.E.M.E set ("C.R.E.M.E. DJ Crew Allstars"). */
 export const SETS_PLAYLIST = {
   id: 'PLbVTv_Ez0D_Q',

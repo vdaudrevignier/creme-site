@@ -1,0 +1,193 @@
+---
+import Base from '../layouts/Base.astro';
+import TerminalWindow from '../components/TerminalWindow.astro';
+import { formatDate, useTranslations, type Lang } from '../i18n/ui';
+import { LEGAL, SOCIALS } from '../lib/content';
+
+const lang = (Astro.currentLocale ?? 'fr') as Lang;
+const t = useTranslations(lang);
+const fr = lang === 'fr';
+const missing = fr ? '[adresse du siège à compléter]' : '[registered office to be completed]';
+---
+
+<Base title={t('legal.title')} description={t('legal.description')}>
+  <div class="container">
+    <TerminalWindow title="~/mentions-legales" command="cat LEGAL.txt">
+      <h1>{t('legal.title')}</h1>
+
+      <section>
+        <h2>{fr ? 'éditeur du site' : 'publisher'}</h2>
+        <dl>
+          <dt>{fr ? 'nom' : 'name'}</dt>
+          <dd>{LEGAL.association}, {LEGAL.form[lang]}</dd>
+          <dt>{fr ? 'siège social' : 'registered office'}</dt>
+          <dd class:list={{ warn: !LEGAL.address }}>{LEGAL.address || missing}</dd>
+          {
+            LEGAL.rna && (
+              <>
+                <dt>{fr ? 'n° RNA' : 'RNA number'}</dt>
+                <dd>{LEGAL.rna}</dd>
+              </>
+            )
+          }
+          {
+            LEGAL.siren && (
+              <>
+                <dt>SIREN</dt>
+                <dd>{LEGAL.siren}</dd>
+              </>
+            )
+          }
+          <dt>contact</dt>
+          <dd><a href={`mailto:${SOCIALS.email}`}>{SOCIALS.email}</a></dd>
+          <dt>{fr ? 'directeur de la publication' : 'publication director'}</dt>
+          <dd>{LEGAL.publisher}</dd>
+        </dl>
+      </section>
+
+      <section>
+        <h2>{fr ? 'hébergeur' : 'hosting'}</h2>
+        <dl>
+          <dt>{fr ? 'nom' : 'name'}</dt>
+          <dd>{LEGAL.host.name}</dd>
+          <dt>{fr ? 'adresse' : 'address'}</dt>
+          <dd>{LEGAL.host.address}</dd>
+          <dt>{fr ? 'téléphone' : 'phone'}</dt>
+          <dd>{LEGAL.host.phone}</dd>
+          <dt>web</dt>
+          <dd><a href={LEGAL.host.url} rel="noopener" target="_blank">{LEGAL.host.url.replace('https://', '')}</a></dd>
+        </dl>
+      </section>
+
+      <section>
+        <h2>{fr ? 'propriété intellectuelle' : 'intellectual property'}</h2>
+        {
+          fr ? (
+            <p>
+              Les textes, visuels, flyers et photos de ce site appartiennent à C.R.E.M.E, à ses membres ou à
+              leurs auteurs respectifs. Toute réutilisation sans accord est interdite. Les sets et mixes
+              restent la propriété de leurs auteurs et sont diffusés via YouTube, SoundCloud et Mixcloud.
+              Vous êtes l’auteur d’un contenu présent ici et souhaitez un crédit ou un retrait ? Écrivez-nous.
+            </p>
+          ) : (
+            <p>
+              The texts, visuals, flyers and photos on this site belong to C.R.E.M.E, its members or their
+              respective authors. Reuse without permission is not allowed. Sets and mixes remain the property
+              of their authors and are streamed through YouTube, SoundCloud and Mixcloud. Made something shown
+              here and want a credit or a takedown? Write to us.
+            </p>
+          )
+        }
+      </section>
+
+      <section>
+        <h2>{fr ? 'données personnelles' : 'personal data'}</h2>
+        {
+          fr ? (
+            <>
+              <p>
+                Ce site ne contient ni formulaire, ni compte utilisateur, ni outil de mesure d’audience, et
+                ne dépose aucun cookie lui-même.
+              </p>
+              <ul>
+                <li>
+                  <strong>Hébergement :</strong> Cloudflare traite des données techniques (adresse IP,
+                  navigateur, pages demandées) pour servir et sécuriser le site.
+                </li>
+                <li>
+                  <strong>Lecteurs intégrés :</strong> les pages des membres affichent des lecteurs
+                  SoundCloud et Mixcloud, qui peuvent déposer leurs propres cookies et collecter des données
+                  selon leurs politiques respectives. Le lecteur YouTube de la page sets utilise le mode
+                  « sans cookie » et ne se charge qu’au clic.
+                </li>
+                <li>
+                  <strong>Email :</strong> si vous nous écrivez, votre adresse et votre message ne servent
+                  qu’à vous répondre et ne sont jamais revendus ni transmis.
+                </li>
+              </ul>
+              <p>
+                Conformément au RGPD, vous pouvez demander l’accès, la rectification ou la suppression de vos
+                données à <a href={`mailto:${SOCIALS.email}`}>{SOCIALS.email}</a>, et saisir la{' '}
+                <a href="https://www.cnil.fr" rel="noopener" target="_blank">CNIL</a> en cas de désaccord.
+              </p>
+            </>
+          ) : (
+            <>
+              <p>
+                This site has no form, no user account and no analytics, and sets no cookie of its own.
+              </p>
+              <ul>
+                <li>
+                  <strong>Hosting:</strong> Cloudflare processes technical data (IP address, browser,
+                  requested pages) to serve and secure the site.
+                </li>
+                <li>
+                  <strong>Embedded players:</strong> member pages show SoundCloud and Mixcloud players,
+                  which may set their own cookies and collect data under their own policies. The YouTube
+                  player on the sets page uses privacy-enhanced mode and only loads when clicked.
+                </li>
+                <li>
+                  <strong>Email:</strong> if you write to us, your address and message are only used to
+                  reply and are never sold or shared.
+                </li>
+              </ul>
+              <p>
+                Under the GDPR, you can ask to access, correct or delete your data at{' '}
+                <a href={`mailto:${SOCIALS.email}`}>{SOCIALS.email}</a>, and lodge a complaint with the{' '}
+                <a href="https://www.cnil.fr" rel="noopener" target="_blank">CNIL</a>.
+              </p>
+            </>
+          )
+        }
+      </section>
+
+      <p class="dim updated">
+        {fr ? 'dernière mise à jour' : 'last updated'} : <time datetime={LEGAL.updated}>{formatDate(new Date(LEGAL.updated), lang)}</time>
+      </p>
+    </TerminalWindow>
+  </div>
+</Base>
+
+<style>
+  section + section {
+    margin-top: var(--space-5);
+  }
+  dl {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: var(--space-1) var(--space-4);
+    margin: 0;
+  }
+  dt {
+    color: var(--fg-dim);
+  }
+  dt::after {
+    content: ':';
+  }
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .warn {
+    color: var(--accent-2);
+  }
+  ul {
+    padding-left: var(--space-4);
+  }
+  li + li {
+    margin-top: var(--space-2);
+  }
+  .updated {
+    margin-top: var(--space-5);
+    font-size: var(--step--1);
+  }
+  @media (max-width: 40rem) {
+    dl {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+    dd + dt {
+      margin-top: var(--space-2);
+    }
+  }
+</style>

@@ -1,5 +1,5 @@
 ---
-import { useTranslations, type Lang } from '../i18n/ui';
+import { localePath, useTranslations, type Lang } from '../i18n/ui';
 import { SOCIALS } from '../lib/content';
 
 interface Props {
@@ -27,6 +27,7 @@ const year = new Date().getFullYear();
       <a href={`mailto:${SOCIALS.email}`}>{SOCIALS.email}</a>
     </p>
     <p class="dim">© {year} C.R.E.M.E — Paris / Toulouse</p>
+    <p><a href={localePath(Astro.props.lang, '/mentions-legales')}>{t('footer.legal')}</a></p>
   </div>
 </footer>
 
