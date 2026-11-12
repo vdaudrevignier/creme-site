@@ -1,0 +1,609 @@
+---
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const fr = lang === 'fr';
+
+const waves = ['SINE', 'SQR', 'SAW', 'FM', 'X-Y'];
+
+// data-* attributes drive the generic knob behaviour in the script below.
+const knobs = [
+  { param: 'freq', label: 'FREQ', min: 0.5, max: 6, step: 0.05, value: 2, title: fr ? 'Fréquence' : 'Frequency' },
+  { param: 'amp', label: 'AMP', min: 0.05, max: 1, step: 0.01, value: 0.75, title: 'Amplitude' },
+  { param: 'mod', label: 'MOD', min: 0, max: 1, step: 0.01, value: 0.35, title: fr ? 'Modulation / harmoniques' : 'Modulation / harmonics' },
+  { param: 'speed', label: 'DRIFT', min: -3, max: 3, step: 0.05, value: 1, title: fr ? 'Défilement de la phase' : 'Phase drift' },
+  { param: 'persist', label: 'GLOW', min: 0, max: 1, step: 0.01, value: 0.6, title: fr ? 'Rémanence du phosphore' : 'Phosphor persistence' },
+  { param: 'bpm', label: 'BPM', min: 60, max: 180, step: 1, value: 128, title: fr ? 'Tempo du kick' : 'Kick tempo' },
+];
+---
+
+<div class="scope">
+  <div class="readouts top" aria-hidden="true">
+    <span><b>CH1</b> <span data-mode>SINE</span></span>
+    <span data-freq>2.00 div</span>
+    <span class="trig">TRIG ↑ <span data-trig>AUTO</span></span>
+  </div>
+  <button class="screen" type="button" aria-label={fr ? "Forme d'onde suivante" : 'Next waveform'}>
+    <canvas></canvas>
+  </button>
+  <div class="readouts bottom" aria-hidden="true">
+    <span>500mV/div</span>
+    <span>5ms/div</span>
+    <span class="bpm"><i></i><span data-bpm>128</span> BPM</span>
+  </div>
+
+  <div class="panel">
+    <div class="waves" role="group" aria-label={fr ? "Forme d'onde" : 'Waveform'}>
+      {waves.map((w, i) => (
+        <button type="button" data-wave={i} aria-pressed={i === 0 ? 'true' : 'false'}>
+          {w}
+        </button>
+      ))}
+      <button type="button" class="auto" data-auto aria-pressed="true" title={fr ? 'Changement automatique' : 'Auto cycle'}>
+        <i></i>AUTO
+      </button>
+    </div>
+
+    <div class="knobs">
+      {knobs.map((k) => (
+        <div class="knob-wrap">
+          <div
+            class="knob"
+            role="slider"
+            tabindex="0"
+            title={k.title}
+            aria-label={k.title}
+            aria-valuemin={k.min}
+            aria-valuemax={k.max}
+            aria-valuenow={k.value}
+            data-param={k.param}
+            data-min={k.min}
+            data-max={k.max}
+            data-step={k.step}
+            data-default={k.value}
+          ></div>
+          <span class="knob-label">{k.label}</span>
+          <span class="knob-value" data-value-for={k.param}></span>
+        </div>
+      ))}
+    </div>
+    <p class="hint dim">
+      {fr
+        ? '↕ glisser · molette · flèches · double-clic = reset'
+        : '↕ drag · wheel · arrows · double-click = reset'}
+    </p>
+  </div>
+</div>
+
+<style>
+  .scope {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-raised);
+    padding: var(--space-2);
+    box-shadow:
+      0 0 0 1px rgb(0 0 0 / 0.6),
+      0 0 32px rgb(57 255 122 / 0.08);
+  }
+  .readouts {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    color: var(--fg-dim);
+    padding: 0 var(--space-1) var(--space-1);
+    white-space: nowrap;
+  }
+  .readouts.bottom {
+    padding: var(--space-1) var(--space-1) 0;
+  }
+  .readouts b {
+    font-weight: 700;
+    color: var(--bg);
+    background: var(--warn);
+    padding-inline: 0.3em;
+  }
+  .trig {
+    color: var(--accent-2);
+  }
+  .bpm {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+  }
+  .bpm i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: var(--glow);
+    animation: beat var(--beat, 0.46875s) ease-out infinite;
+  }
+  .screen {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 10 / 6;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    background: radial-gradient(ellipse at center, #08130a 0%, #030603 100%);
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .screen:hover {
+    background: radial-gradient(ellipse at center, #08130a 0%, #030603 100%);
+  }
+  /* Graticule: 10 x 6 divisions, centre axes with minor ticks. */
+  .screen::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    --g: rgb(57 255 122 / 0.12);
+    --t: rgb(57 255 122 / 0.35);
+    background:
+      linear-gradient(to right, transparent calc(50% - 0.5px), var(--t) 0 calc(50% + 0.5px), transparent 0),
+      linear-gradient(to bottom, transparent calc(50% - 0.5px), var(--t) 0 calc(50% + 0.5px), transparent 0),
+      repeating-linear-gradient(to right, var(--t) 0 1px, transparent 1px 2%) center / 100% 6px no-repeat,
+      repeating-linear-gradient(to bottom, var(--t) 0 1px, transparent 1px calc(100% / 30)) center / 6px 100% no-repeat,
+      repeating-linear-gradient(to right, var(--g) 0 1px, transparent 1px 10%),
+      repeating-linear-gradient(to bottom, var(--g) 0 1px, transparent 1px calc(100% / 6));
+  }
+  canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ---- Control panel ---- */
+  .panel {
+    margin-top: var(--space-2);
+    padding: var(--space-2) var(--space-1) 0;
+    border-top: 1px dashed var(--line);
+  }
+  .waves {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+  .waves button {
+    flex: 1 1 auto;
+    min-width: 2.75rem;
+    padding: 0.15rem 0.4rem;
+    font: inherit;
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    color: var(--fg-dim);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    cursor: pointer;
+  }
+  .waves button:hover {
+    color: var(--accent);
+    border-color: var(--fg-dim);
+  }
+  .waves button[aria-pressed='true'] {
+    color: var(--bg);
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: var(--glow);
+  }
+  .waves .auto {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35em;
+  }
+  .waves .auto i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--line);
+  }
+  .waves .auto[aria-pressed='true'] {
+    color: var(--accent-2);
+    background: var(--bg);
+    border-color: var(--accent-2);
+    box-shadow: none;
+  }
+  .waves .auto[aria-pressed='true'] i {
+    background: var(--accent-2);
+    box-shadow: 0 0 6px var(--accent-2);
+  }
+  .knobs {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--space-2) var(--space-1);
+    margin-top: var(--space-3);
+  }
+  @media (max-width: 26rem) {
+    .knobs {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .knob-wrap {
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    font-size: 0.625rem;
+    letter-spacing: 0.05em;
+  }
+  .knob {
+    --pct: 0.5;
+    position: relative;
+    width: 2.6rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    cursor: ns-resize;
+    touch-action: none;
+    /* Value arc from 7 o'clock to 5 o'clock. */
+    background: conic-gradient(
+      from -135deg,
+      var(--accent) 0 calc(var(--pct) * 270deg),
+      var(--line) 0 270deg,
+      transparent 0
+    );
+    filter: drop-shadow(0 0 3px rgb(57 255 122 / 0.25));
+  }
+  .knob::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #1c2b1f, #070c08 70%);
+    box-shadow:
+      inset 0 0 0 1px #000,
+      0 2px 4px rgb(0 0 0 / 0.6);
+  }
+  .knob::after {
+    content: '';
+    position: absolute;
+    left: calc(50% - 1px);
+    top: 7px;
+    width: 2px;
+    height: calc(50% - 7px);
+    border-radius: 1px;
+    background: var(--fg);
+    transform-origin: 50% 100%;
+    transform: rotate(calc(-135deg + var(--pct) * 270deg));
+  }
+  .knob:hover::after,
+  .knob:focus-visible::after,
+  .knob.active::after {
+    background: var(--accent-2);
+    box-shadow: 0 0 4px var(--accent-2);
+  }
+  .knob:focus-visible {
+    outline-offset: 2px;
+  }
+  .knob-label {
+    color: var(--fg);
+  }
+  .knob-value {
+    color: var(--fg-dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .hint {
+    margin: var(--space-2) 0 0;
+    font-size: 0.625rem;
+    text-align: center;
+  }
+  @keyframes beat {
+    0% {
+      transform: scale(1.4);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(0.8);
+      opacity: 0.35;
+    }
+  }
+</style>
+
+<script>
+  type Params = { freq: number; amp: number; mod: number; speed: number; persist: number; bpm: number };
+  type Wave = (s: number, phase: number, p: Params) => [number, number];
+
+  const TAU = Math.PI * 2;
+
+  // Every mode maps s ∈ [0,1] to a point in [-1,1]², so modes can be morphed by lerp.
+  const timeDomain =
+    (f: (x: number, phase: number, p: Params) => number): Wave =>
+    (s, phase, p) => [s * 2 - 1, f(TAU * p.freq * s + phase, phase, p)];
+
+  const modes: { name: string; wave: Wave }[] = [
+    // MOD adds a 2nd and 3rd harmonic.
+    {
+      name: 'SINE',
+      wave: timeDomain((x, _, p) => {
+        const y = Math.sin(x) + p.mod * 0.5 * Math.sin(2 * x) + p.mod * 0.25 * Math.sin(3 * x);
+        return y / (1 + p.mod * 0.5);
+      }),
+    },
+    // MOD = number of odd harmonics.
+    {
+      name: 'SQR',
+      wave: timeDomain((x, _, p) => {
+        const top = 1 + Math.round(p.mod * 12) * 2;
+        let y = 0;
+        for (let n = 1; n <= top; n += 2) y += Math.sin(n * x) / n;
+        return y * (4 / Math.PI) * 0.8;
+      }),
+    },
+    // MOD = number of harmonics.
+    {
+      name: 'SAW',
+      wave: timeDomain((x, _, p) => {
+        const top = 1 + Math.round(p.mod * 15);
+        let y = 0;
+        for (let n = 1; n <= top; n++) y += ((n % 2 ? 1 : -1) * Math.sin(n * x)) / n;
+        return y * (2 / Math.PI) * 0.9;
+      }),
+    },
+    // MOD = modulation index.
+    {
+      name: 'FM',
+      wave: timeDomain((x, phase, p) => Math.sin(x + p.mod * 5 * Math.sin(x * 2.5 + phase * 0.4)) * 0.9),
+    },
+    // FREQ = base ratio, MOD = ratio offset of the second axis.
+    {
+      name: 'X-Y',
+      wave: (s, phase, p) => {
+        const a = Math.max(1, Math.round(p.freq));
+        const b = a + 1 + Math.round(p.mod * 3);
+        return [Math.sin(TAU * b * s + phase * 0.2), Math.sin(TAU * a * s)];
+      },
+    },
+  ];
+
+  const root = document.querySelector<HTMLElement>('.scope');
+  const screen = root?.querySelector<HTMLButtonElement>('.screen');
+  const canvas = screen?.querySelector('canvas');
+  const ctx = canvas?.getContext('2d');
+
+  if (root && screen && canvas && ctx) {
+    const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#39ff7a';
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const $ = <T extends Element>(sel: string) => root.querySelector<T>(sel)!;
+    const modeEl = $('[data-mode]');
+    const freqEl = $('[data-freq]');
+    const bpmEl = $('[data-bpm]');
+    const trigEl = $('[data-trig]');
+    const autoBtn = $<HTMLButtonElement>('[data-auto]');
+    const waveBtns = [...root.querySelectorAll<HTMLButtonElement>('[data-wave]')];
+    const knobEls = [...root.querySelectorAll<HTMLElement>('.knob')];
+
+    const params: Params = { freq: 2, amp: 0.75, mod: 0.35, speed: 1, persist: 0.6, bpm: 128 };
+    // Smoothed copies so knob moves glide instead of jumping.
+    const live: Params = { ...params };
+
+    let mode = 0;
+    let prev = 0;
+    let morph = 1;
+    let auto = !still;
+    let lastSwitch = 0;
+    let phase = 0;
+    let beatClock = 0;
+    let last = performance.now();
+
+    // ---------- Rendering ----------
+    let w = 0;
+    let h = 0;
+    const resize = () => {
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      const r = canvas.getBoundingClientRect();
+      w = r.width;
+      h = r.height;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      redrawStill();
+    };
+
+    const draw = (clear: boolean) => {
+      ctx.globalCompositeOperation = 'source-over';
+      if (clear) ctx.clearRect(0, 0, w, h);
+      else {
+        // Phosphor persistence: fade the previous frame instead of clearing it.
+        ctx.fillStyle = `rgba(3, 6, 3, ${0.6 - live.persist * 0.55})`;
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      const kick = 1 + 0.18 * Math.exp(-beatClock * 7);
+      const e = morph * morph * (3 - 2 * morph);
+      const a = modes[prev]!.wave;
+      const b = modes[mode]!.wave;
+      const N = 480;
+
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 1.6;
+      ctx.lineJoin = 'round';
+      ctx.shadowColor = accent;
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      for (let i = 0; i <= N; i++) {
+        const s = i / N;
+        const [ax, ay] = a(s, phase, live);
+        const [bx, by] = b(s, phase, live);
+        const x = ax + (bx - ax) * e;
+        const y = ay + (by - ay) * e;
+        // X-Y uses AMP on both axes, time-domain only vertically.
+        const xs = mode === 4 || prev === 4 ? 1 + (live.amp - 1) * (mode === 4 ? e : 1 - e) : 1;
+        const px = (x * xs * 0.96 + 1) * 0.5 * w;
+        const py = (1 - (y * live.amp * kick * 0.92 + 1) * 0.5) * h;
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    };
+
+    const redrawStill = () => {
+      if (!still) return;
+      Object.assign(live, params);
+      morph = 1;
+      draw(true);
+    };
+
+    // ---------- UI state ----------
+    const setMode = (next: number) => {
+      next = ((next % modes.length) + modes.length) % modes.length;
+      if (next === mode) return;
+      prev = mode;
+      mode = next;
+      morph = still ? 1 : 0;
+      modeEl.textContent = modes[mode]!.name;
+      waveBtns.forEach((btn, i) => btn.setAttribute('aria-pressed', String(i === mode)));
+      redrawStill();
+    };
+    const setAuto = (on: boolean) => {
+      auto = on;
+      autoBtn.setAttribute('aria-pressed', String(on));
+      trigEl.textContent = on ? 'AUTO' : 'NORM';
+    };
+    setAuto(auto);
+
+    const fmt: Record<keyof Params, (v: number) => string> = {
+      freq: (v) => v.toFixed(2),
+      amp: (v) => `${Math.round(v * 100)}%`,
+      mod: (v) => `${Math.round(v * 100)}%`,
+      speed: (v) => (v > 0 ? '+' : '') + v.toFixed(1),
+      persist: (v) => `${Math.round(v * 100)}%`,
+      bpm: (v) => String(Math.round(v)),
+    };
+
+    const setParam = (knob: HTMLElement, raw: number) => {
+      const key = knob.dataset.param as keyof Params;
+      const min = Number(knob.dataset.min);
+      const max = Number(knob.dataset.max);
+      const step = Number(knob.dataset.step);
+      const v = Math.min(max, Math.max(min, Math.round(raw / step) * step));
+      params[key] = v;
+      knob.style.setProperty('--pct', String((v - min) / (max - min)));
+      knob.setAttribute('aria-valuenow', String(v));
+      knob.setAttribute('aria-valuetext', fmt[key](v));
+      root.querySelector(`[data-value-for="${key}"]`)!.textContent = fmt[key](v);
+      if (key === 'bpm') {
+        bpmEl.textContent = fmt.bpm(v);
+        root.style.setProperty('--beat', `${60 / v}s`);
+      }
+      if (key === 'freq') freqEl.textContent = `${v.toFixed(2)} div`;
+      redrawStill();
+    };
+
+    // ---------- Knob interaction ----------
+    knobEls.forEach((knob) => {
+      const key = knob.dataset.param as keyof Params;
+      const min = Number(knob.dataset.min);
+      const max = Number(knob.dataset.max);
+      const step = Number(knob.dataset.step);
+      setParam(knob, Number(knob.dataset.default));
+
+      let startY = 0;
+      let startV = 0;
+      knob.addEventListener('pointerdown', (ev) => {
+        knob.setPointerCapture(ev.pointerId);
+        knob.classList.add('active');
+        startY = ev.clientY;
+        startV = params[key];
+        ev.preventDefault();
+        knob.focus();
+      });
+      knob.addEventListener('pointermove', (ev) => {
+        if (!knob.hasPointerCapture(ev.pointerId)) return;
+        // 160px of travel = full range, Shift for fine tuning.
+        const range = (max - min) * (ev.shiftKey ? 0.2 : 1);
+        setParam(knob, startV + ((startY - ev.clientY) / 160) * range);
+      });
+      const release = () => knob.classList.remove('active');
+      knob.addEventListener('pointerup', release);
+      knob.addEventListener('pointercancel', release);
+      knob.addEventListener(
+        'wheel',
+        (ev) => {
+          ev.preventDefault();
+          setParam(knob, params[key] + Math.sign(-ev.deltaY) * Math.max(step, (max - min) / 50));
+        },
+        { passive: false },
+      );
+      knob.addEventListener('dblclick', () => setParam(knob, Number(knob.dataset.default)));
+      knob.addEventListener('keydown', (ev) => {
+        const big = (max - min) / 10;
+        const moves: Record<string, number> = {
+          ArrowUp: step,
+          ArrowRight: step,
+          ArrowDown: -step,
+          ArrowLeft: -step,
+          PageUp: big,
+          PageDown: -big,
+        };
+        if (ev.key in moves) setParam(knob, params[key] + moves[ev.key]! * (ev.shiftKey ? 10 : 1));
+        else if (ev.key === 'Home') setParam(knob, min);
+        else if (ev.key === 'End') setParam(knob, max);
+        else return;
+        ev.preventDefault();
+      });
+    });
+
+    waveBtns.forEach((btn, i) =>
+      btn.addEventListener('click', () => {
+        setAuto(false);
+        setMode(i);
+      }),
+    );
+    autoBtn.addEventListener('click', () => {
+      setAuto(!auto);
+      lastSwitch = 0;
+    });
+    screen.addEventListener('click', () => {
+      lastSwitch = 0;
+      setMode(mode + 1);
+    });
+
+    // ---------- Animation loop ----------
+    let raf = 0;
+    let visible = true;
+    const loop = (now: number) => {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      for (const k of Object.keys(params) as (keyof Params)[]) live[k] += (params[k] - live[k]) * 0.15;
+      phase += dt * live.speed * 3;
+      beatClock = (beatClock + dt / (60 / live.bpm)) % 1;
+      morph = Math.min(1, morph + dt * 1.5);
+      if (auto) {
+        lastSwitch += dt;
+        if (lastSwitch > 5) {
+          lastSwitch = 0;
+          setMode(mode + 1);
+        }
+      }
+      draw(false);
+      raf = visible && !document.hidden ? requestAnimationFrame(loop) : 0;
+    };
+    const start = () => {
+      if (still || raf || !visible || document.hidden) return;
+      last = performance.now();
+      raf = requestAnimationFrame(loop);
+    };
+
+    new ResizeObserver(resize).observe(canvas);
+    resize();
+    if (!still) {
+      new IntersectionObserver(([entry]) => {
+        visible = !!entry?.isIntersecting;
+        start();
+      }).observe(root);
+      document.addEventListener('visibilitychange', start);
+      start();
+    }
+  }
+</script>

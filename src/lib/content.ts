@@ -35,7 +35,7 @@ export const LEGAL = {
   association: 'C.R.E.M.E Collective',
   form: { fr: 'association loi 1901', en: 'non-profit association (French law of 1901)' },
   /** Registered office, e.g. "12 rue Exemple, 75011 Paris". */
-  address: '4 rue Jules Ferry, appartement 8, 92130 Issy-les-Moulineaux, France',
+  address: '4 rue Jules Ferry, 92130 Issy-les-Moulineaux, France',
   /** RNA number from the Journal officiel, e.g. "W751234567". Optional. */
   rna: 'W923012335',
   /** SIREN number (INSEE). Optional. */

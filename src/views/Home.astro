@@ -4,6 +4,7 @@ import Base from '../layouts/Base.astro';
 import TerminalWindow from '../components/TerminalWindow.astro';
 import MemberCard from '../components/MemberCard.astro';
 import EventCard from '../components/EventCard.astro';
+import Oscilloscope from '../components/Oscilloscope.astro';
 import { localePath, useTranslations, type Lang } from '../i18n/ui';
 import { getEvents, getMembers } from '../lib/content';
 import logoSrc from '../assets/logo.png';
@@ -27,6 +28,7 @@ const boot: [BootStatus, string][] = [
 <Base>
   <div class="container stack">
     <section class="hero">
+      <div class="hero-text">
       <h1 class="logo" style={`--logo: url(${logo.src})`}>
         <span class="sr-only">C.R.E.M.E</span>
       </h1>
@@ -42,6 +44,8 @@ const boot: [BootStatus, string][] = [
         ))}
       </ol>
       <p class="tagline cursor">{t('site.tagline')}</p>
+      </div>
+      <Oscilloscope lang={lang} />
     </section>
 
     <TerminalWindow title="~/about" command="cat README.txt">
@@ -86,6 +90,17 @@ const boot: [BootStatus, string][] = [
   }
   .hero {
     padding-block: var(--space-4);
+    display: grid;
+    gap: var(--space-5);
+    align-items: center;
+  }
+  .hero-text {
+    min-width: 0;
+  }
+  @media (min-width: 56rem) {
+    .hero {
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    }
   }
   .logo {
     width: min(100%, 40rem);
