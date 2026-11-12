@@ -1,0 +1,142 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import TerminalWindow from '../components/TerminalWindow.astro';
+import { useTranslations, type Lang } from '../i18n/ui';
+import { SETS_PLAYLIST } from '../lib/content';
+import cover from '../assets/sets-cover.jpg';
+
+const lang = Astro.currentLocale as Lang;
+const t = useTranslations(lang);
+// youtube-nocookie: no tracking cookies until the visitor actually plays.
+const embedSrc = `https://www.youtube-nocookie.com/embed/videoseries?list=${SETS_PLAYLIST.id}&autoplay=1&rel=0`;
+---
+
+<Base title={t('sets.title')} description={t('sets.intro')}>
+  <div class="container stack">
+    <TerminalWindow title="~/sets" command="mpv ./allstars.m3u">
+      <h1>{t('sets.title')}</h1>
+      <p class="dim">{t('sets.intro')}</p>
+
+      <div class="player" data-player data-src={embedSrc} data-title={t('sets.title')}>
+        <button type="button" class="facade" aria-label={t('sets.play')}>
+          <Image src={cover} alt="" widths={[640, 1280]} sizes="(min-width: 72rem) 72rem, 100vw" />
+          <span class="overlay">
+            <span class="play" aria-hidden="true">
+              <svg viewBox="0 0 11 12" shape-rendering="crispEdges"><path d="M3 1H4V2H5V3H6V4H7V5H8V7H7V8H6V9H5V10H4V11H3Z" /></svg>
+            </span>
+          </span>
+        </button>
+      </div>
+
+      <p>
+        <a href={SETS_PLAYLIST.url} target="_blank" rel="noopener">
+          {t('sets.openYoutube')} ↗
+        </a>
+      </p>
+    </TerminalWindow>
+  </div>
+</Base>
+
+<script>
+  for (const player of document.querySelectorAll<HTMLElement>('[data-player]')) {
+    player.querySelector('button')?.addEventListener(
+      'click',
+      () => {
+        const iframe = document.createElement('iframe');
+        iframe.src = player.dataset.src!;
+        iframe.title = player.dataset.title ?? 'YouTube';
+        iframe.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+        iframe.allowFullscreen = true;
+        iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+        player.replaceChildren(iframe);
+        iframe.focus();
+      },
+      { once: true },
+    );
+  }
+</script>
+
+<style>
+  .stack {
+    display: grid;
+    gap: var(--space-5);
+  }
+  .player {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    max-width: 100%;
+    margin-block: var(--space-4);
+    border: 1px solid var(--line);
+    background: #000;
+    overflow: hidden;
+  }
+  .player :global(iframe),
+  .facade {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .facade {
+    padding: 0;
+    background: none;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+  }
+  .facade img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(0.6) contrast(1.1) brightness(0.55);
+    transition: filter 0.2s;
+  }
+  .facade:hover img,
+  .facade:focus-visible img {
+    filter: grayscale(0) brightness(0.75);
+  }
+  .overlay {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+  }
+  .play {
+    display: grid;
+    place-items: center;
+    width: clamp(3.5rem, 10vw, 5rem);
+    aspect-ratio: 1;
+    border: 2px solid var(--accent);
+    border-radius: 0;
+    background: var(--bg);
+    color: var(--accent);
+    box-shadow: 5px 5px 0 var(--accent-2);
+    transition:
+      color 0.15s,
+      border-color 0.15s,
+      transform 0.15s,
+      box-shadow 0.15s;
+  }
+  .play svg {
+    width: 55%;
+    fill: currentColor;
+  }
+  .facade:hover .play,
+  .facade:focus-visible .play {
+    color: var(--bg);
+    background: var(--accent);
+    transform: translate(-2px, -2px);
+    box-shadow: 7px 7px 0 var(--accent-2);
+  }
+  .facade:active .play {
+    transform: translate(3px, 3px);
+    box-shadow: 2px 2px 0 var(--accent-2);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .play {
+      transition: none;
+    }
+  }
+</style>

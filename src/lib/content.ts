@@ -26,3 +26,9 @@ export const SOCIALS = {
   instagram: 'https://www.instagram.com/cremedjcrew/',
   email: 'cremedjcrew@gmail.com',
 } as const;
+
+/** YouTube playlist compiling every C.R.E.M.E set ("C.R.E.M.E. DJ Crew Allstars"). */
+export const SETS_PLAYLIST = {
+  id: 'PLbVTv_Ez0D_Q',
+  url: 'https://www.youtube.com/playlist?list=PLbVTv_Ez0D_Q',
+} as const;
