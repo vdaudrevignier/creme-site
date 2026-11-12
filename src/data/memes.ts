@@ -75,7 +75,7 @@ export const memes: Record<Lang, MemeCopy> = {
     ],
     tabAway: ['come back pls 🥺', '[process paused]', 'the bass is waiting…', 'alt+tab detected'],
     notFound: [
-      { art: '   ¯\\_(ツ)_/¯', text: 'command not found. this page was probably eaten by a meme.' },
+      { art: '   ¯\\_(ツ)_/¯', text: 'command not found. try farting in your dick.' },
       { art: '  (╯°□°)╯︵ ┻━┻', text: 'this page has left the collective.' },
       { art: '   ( ͡° ͜ʖ ͡°)', text: 'nothing here. or maybe it’s a secret.' },
       {
