@@ -3,13 +3,17 @@ import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import TerminalWindow from '../components/TerminalWindow.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
-import { SETS_PLAYLIST } from '../lib/content';
+import { SETS_PLAYLIST, getSets } from '../lib/content';
 import cover from '../assets/sets-cover.jpg';
 
 const lang = Astro.currentLocale as Lang;
 const t = useTranslations(lang);
+const sets = await getSets();
+const PER_PAGE = 10;
 // youtube-nocookie: no tracking cookies until the visitor actually plays.
-const embedSrc = `https://www.youtube-nocookie.com/embed/videoseries?list=${SETS_PLAYLIST.id}&autoplay=1&rel=0`;
+const embedBase = 'https://www.youtube-nocookie.com/embed';
+const playlistSrc = `${embedBase}/videoseries?list=${SETS_PLAYLIST.id}&autoplay=1&rel=0`;
+const ymd = (d: Date) => d.toISOString().slice(0, 10);
 ---
 
 <Base title={t('sets.title')} description={t('sets.intro')}>
@@ -18,7 +22,14 @@ const embedSrc = `https://www.youtube-nocookie.com/embed/videoseries?list=${SETS
       <h1>{t('sets.title')}</h1>
       <p class="dim">{t('sets.intro')}</p>
 
-      <div class="player" data-player data-src={embedSrc} data-title={t('sets.title')}>
+      <div
+        class="player"
+        data-player
+        data-src={playlistSrc}
+        data-base={embedBase}
+        data-list={SETS_PLAYLIST.id}
+        data-title={t('sets.title')}
+      >
         <button type="button" class="facade" aria-label={t('sets.play')}>
           <Image src={cover} alt="" widths={[640, 1280]} sizes="(min-width: 72rem) 72rem, 100vw" />
           <span class="overlay">
@@ -28,6 +39,39 @@ const embedSrc = `https://www.youtube-nocookie.com/embed/videoseries?list=${SETS
           </span>
         </button>
       </div>
+
+      {
+        sets.length > 0 && (
+          <section class="sets" aria-labelledby="sets-list-title" data-sets data-per-page={PER_PAGE}>
+            <h2 id="sets-list-title" class="prompt">
+              <span class="dim">$</span> ls -l ./allstars <span class="sr-only">— {t('sets.list')}</span>
+            </h2>
+            <ol class="list">
+              {sets.map((set, i) => (
+                <li data-index={i}>
+                  <button type="button" class="row" data-video-id={set.videoId} title={set.title}>
+                    <span class="mark" aria-hidden="true" />
+                    <span class="num">{String(i + 1).padStart(2, '0')}</span>
+                    <time class="date" datetime={set.published.toISOString()}>
+                      {ymd(set.published)}
+                    </time>
+                    <span class="name">{set.title}</span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+            {sets.length > PER_PAGE && (
+              <nav class="pager" aria-label={t('sets.page')} data-pager hidden>
+                <button type="button" data-step="-1">← {t('sets.prev')}</button>
+                {Array.from({ length: Math.ceil(sets.length / PER_PAGE) }, (_, p) => (
+                  <button type="button" data-page={p}>[{p + 1}]</button>
+                ))}
+                <button type="button" data-step="1">{t('sets.next')} →</button>
+              </nav>
+            )}
+          </section>
+        )
+      }
 
       <p>
         <a href={SETS_PLAYLIST.url} target="_blank" rel="noopener">
@@ -39,21 +83,70 @@ const embedSrc = `https://www.youtube-nocookie.com/embed/videoseries?list=${SETS
 </Base>
 
 <script>
-  for (const player of document.querySelectorAll<HTMLElement>('[data-player]')) {
-    player.querySelector('button')?.addEventListener(
-      'click',
-      () => {
-        const iframe = document.createElement('iframe');
-        iframe.src = player.dataset.src!;
-        iframe.title = player.dataset.title ?? 'YouTube';
-        iframe.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
-        iframe.allowFullscreen = true;
-        iframe.referrerPolicy = 'strict-origin-when-cross-origin';
-        player.replaceChildren(iframe);
-        iframe.focus();
-      },
-      { once: true },
-    );
+  const player = document.querySelector<HTMLElement>('[data-player]');
+  const list = document.querySelector<HTMLElement>('[data-sets]');
+
+  if (player) {
+    const rows = [...(list?.querySelectorAll<HTMLButtonElement>('[data-video-id]') ?? [])];
+    const { base, list: playlistId, src: playlistSrc } = player.dataset;
+    const srcFor = (id: string) => `${base}/${id}?list=${playlistId}&autoplay=1&rel=0`;
+
+    const play = (src: string) => {
+      const current = player.querySelector('iframe');
+      if (current) {
+        current.src = src;
+        return;
+      }
+      const iframe = document.createElement('iframe');
+      iframe.src = src;
+      iframe.title = player.dataset.title ?? 'YouTube';
+      iframe.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      iframe.allowFullscreen = true;
+      iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+      player.replaceChildren(iframe);
+    };
+
+    const setActive = (row?: HTMLButtonElement) => {
+      for (const r of rows) r.toggleAttribute('aria-current', r === row);
+    };
+
+    player.querySelector('.facade')?.addEventListener('click', () => {
+      setActive(rows[0]);
+      play(rows[0] ? srcFor(rows[0].dataset.videoId!) : playlistSrc!);
+      player.querySelector('iframe')?.focus();
+    });
+
+    for (const row of rows) {
+      row.addEventListener('click', () => {
+        setActive(row);
+        play(srcFor(row.dataset.videoId!));
+        player.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    }
+  }
+
+  // Client-side pagination; without JS every set stays visible.
+  const pager = list?.querySelector<HTMLElement>('[data-pager]');
+  if (list && pager) {
+    const perPage = Number(list.dataset.perPage);
+    const items = [...list.querySelectorAll<HTMLElement>('li[data-index]')];
+    const pageButtons = [...pager.querySelectorAll<HTMLButtonElement>('[data-page]')];
+    const [prev, next] = [...pager.querySelectorAll<HTMLButtonElement>('[data-step]')];
+    let page = 0;
+
+    const show = (p: number) => {
+      page = Math.max(0, Math.min(pageButtons.length - 1, p));
+      for (const li of items) li.hidden = Math.floor(Number(li.dataset.index) / perPage) !== page;
+      pageButtons.forEach((b, i) => b.toggleAttribute('aria-current', i === page));
+      prev.disabled = page === 0;
+      next.disabled = page === pageButtons.length - 1;
+    };
+
+    for (const b of pageButtons) b.addEventListener('click', () => show(Number(b.dataset.page)));
+    prev.addEventListener('click', () => show(page - 1));
+    next.addEventListener('click', () => show(page + 1));
+    pager.hidden = false;
+    show(0);
   }
 </script>
 
@@ -133,6 +226,90 @@ const embedSrc = `https://www.youtube-nocookie.com/embed/videoseries?list=${SETS
   .facade:active .play {
     transform: translate(3px, 3px);
     box-shadow: 2px 2px 0 var(--accent-2);
+  }
+
+  /* --- set list --- */
+  .sets {
+    margin-block: var(--space-4);
+  }
+  .prompt {
+    font-family: inherit;
+    font-size: 1rem;
+    text-shadow: none;
+    margin: 0 0 var(--space-3);
+  }
+  .list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px dashed var(--line);
+  }
+  .list li {
+    border-bottom: 1px dashed var(--line);
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 1.2ch 2.5ch 10ch minmax(0, 1fr);
+    gap: var(--space-3);
+    align-items: baseline;
+    width: 100%;
+    padding: 0.45em 0.25em;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .row:hover,
+  .row:focus-visible {
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+  .num,
+  .date {
+    color: var(--fg-dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .name {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .row[aria-current] {
+    color: var(--accent);
+  }
+  .row[aria-current] .mark::before {
+    content: '▶';
+  }
+  .pager {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: var(--space-3);
+  }
+  .pager button {
+    padding: 0.2em 0.4em;
+    border: 0;
+    background: none;
+    color: var(--fg-dim);
+    font: inherit;
+    cursor: pointer;
+  }
+  .pager button:hover:not(:disabled),
+  .pager button[aria-current] {
+    color: var(--accent);
+  }
+  .pager button:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+  @media (max-width: 30rem) {
+    .row {
+      grid-template-columns: 1.2ch 2.5ch minmax(0, 1fr);
+    }
+    .date {
+      display: none;
+    }
   }
   @media (prefers-reduced-motion: reduce) {
     .play {
