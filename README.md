@@ -26,10 +26,15 @@ npm run format    # Prettier
 Les pages FR sont à la racine (`/`, `/members`, `/events`), les pages EN sous `/en/...` ;
 les deux utilisent les mêmes vues (`src/views/`).
 
-## Déploiement (Cloudflare Pages)
+## Déploiement (Cloudflare Workers)
 
-- Build command : `npm run build`
-- Output directory : `dist`
-- Variable d'environnement : `NODE_VERSION=24`
+En ligne sur https://creme-site.vicdauvi-pro.workers.dev/
 
-Chaque push sur `main` déploie la production ; chaque branche a son URL de preview.
+Cloudflare Workers Builds est connecté au repo GitHub : chaque push sur `main` lance
+`npm run build` puis `npx wrangler deploy` (config dans `wrangler.jsonc`, Node 24 via `.node-version`).
+
+Tester le rendu « comme en prod » en local (404, redirections) :
+
+```sh
+npm run build && npx wrangler dev
+```

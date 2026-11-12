@@ -1,0 +1,13 @@
+{
+  // Cloudflare Workers (static assets) config. The name must match the Worker in the dashboard.
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "creme-site",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    // Serve our dist/404.html for unknown URLs.
+    "not_found_handling": "404-page",
+    // URLs end with "/" (matches Astro's trailingSlash: 'always').
+    "html_handling": "force-trailing-slash",
+  },
+}

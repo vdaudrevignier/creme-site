@@ -16,8 +16,9 @@ const items = [
   { path: '/members', label: t('nav.members') },
   { path: '/events', label: t('nav.events') },
 ];
+const current = basePath.replace(/(.)\/$/, '$1');
 const isActive = (path: string) =>
-  path === '/' ? basePath === '/' : basePath === path || basePath.startsWith(`${path}/`);
+  path === '/' ? current === '/' : current === path || current.startsWith(`${path}/`);
 ---
 
 <header class="bar">
