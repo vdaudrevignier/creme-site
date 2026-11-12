@@ -2,6 +2,9 @@
 name: DJ DORMIR
 order: 1
 photo: ../../assets/members/dj-dormir.jpg
+photoAlt:
+  fr: DJ DORMIR, il est fatiger
+  en: DJ DORMIR, he is tired
 bio:
   en: Original DJ Dormir A.K.A. DJ Réveiller A.K.A. VKO.
 links:

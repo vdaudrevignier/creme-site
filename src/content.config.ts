@@ -11,6 +11,8 @@ const members = defineCollection({
       name: z.string(),
       order: z.number().int(),
       photo: image(),
+      /** Meme caption of the photo: used as alt text and hover tooltip. */
+      photoAlt: i18nText.optional(),
       bio: i18nText.optional(),
       links: z
         .object({

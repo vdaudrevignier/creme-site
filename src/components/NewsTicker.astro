@@ -1,0 +1,105 @@
+---
+import { memes } from '../data/memes';
+import { formatDate, type Lang } from '../i18n/ui';
+import { getEvents } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const { upcoming } = await getEvents();
+const next = upcoming[0]?.data;
+const headlines = [
+  ...(next
+    ? [
+        `${lang === 'fr' ? 'PROCHAIN EVENT' : 'NEXT EVENT'} : ${formatDate(next.date, lang)} — ${next.title} @ ${next.venue}, ${next.city}`,
+      ]
+    : []),
+  ...memes[lang].ticker,
+];
+// Roughly constant speed whatever the amount of text.
+const duration = Math.max(30, Math.round(headlines.join('').length / 6));
+---
+
+<div class="ticker" role="marquee" aria-label="CREME news">
+  <span class="label">{lang === 'fr' ? 'INFO CREME' : 'CREME NEWS'}</span>
+  <div class="viewport">
+    <div class="track" style={`--duration: ${duration}s`}>
+      {[0, 1].map((copy) => (
+        <ul aria-hidden={copy === 1 ? 'true' : undefined}>
+          {headlines.map((h) => (
+            <li>{h}</li>
+          ))}
+        </ul>
+      ))}
+    </div>
+  </div>
+</div>
+
+<style>
+  .ticker {
+    display: flex;
+    align-items: stretch;
+    border-block: 1px solid var(--line);
+    background: var(--bg-raised);
+    font-size: var(--step--1);
+    text-transform: uppercase;
+    overflow: hidden;
+  }
+  .label {
+    flex: none;
+    display: flex;
+    align-items: center;
+    padding-inline: var(--space-3);
+    background: var(--accent-2);
+    color: var(--bg);
+    font-weight: 800;
+    z-index: 1;
+  }
+  .viewport {
+    flex: 1;
+    overflow: hidden;
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 2rem,
+      #000 calc(100% - 2rem),
+      transparent
+    );
+  }
+  .track {
+    display: flex;
+    width: max-content;
+    animation: scroll var(--duration) linear infinite;
+  }
+  .ticker:hover .track,
+  .ticker:focus-within .track {
+    animation-play-state: paused;
+  }
+  ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: var(--space-1) 0;
+    white-space: nowrap;
+  }
+  li::after {
+    content: '///';
+    margin-inline: var(--space-4);
+    color: var(--accent-2);
+  }
+  li:first-child {
+    color: var(--warn);
+  }
+  @keyframes scroll {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .viewport {
+      overflow-x: auto;
+    }
+  }
+</style>

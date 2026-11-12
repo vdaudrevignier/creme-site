@@ -4,6 +4,8 @@ import '@fontsource/vt323';
 import '../styles/global.css';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import NewsTicker from '../components/NewsTicker.astro';
+import { memes } from '../data/memes';
 import { defaultLang, languages, localePath, useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -53,12 +55,26 @@ const ogImage = image ? new URL(image, Astro.site ?? Astro.url).href : undefined
       skip
     </a>
     <Nav lang={lang} basePath={basePath} />
-    <main id="main">
+    <NewsTicker lang={lang} />
+    <main id="main" data-tab-away={JSON.stringify(memes[lang].tabAway)}>
       <slot />
     </main>
     <Footer lang={lang} />
   </body>
 </html>
+
+<script>
+  import { pickOne, readData } from '../lib/random';
+
+  // Swap the tab title while the visitor is away.
+  const away = readData<string[]>(document.getElementById('main'), 'tab-away');
+  const original = document.title;
+  if (away?.length) {
+    document.addEventListener('visibilitychange', () => {
+      document.title = document.hidden ? pickOne(away) : original;
+    });
+  }
+</script>
 
 <style>
   main {

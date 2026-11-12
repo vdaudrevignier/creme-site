@@ -1,18 +1,23 @@
 ---
 import Base from '../layouts/Base.astro';
 import TerminalWindow from '../components/TerminalWindow.astro';
+import { memes } from '../data/memes';
 import { localePath, useTranslations, type Lang } from '../i18n/ui';
 
 const lang = (Astro.currentLocale ?? 'fr') as Lang;
 const t = useTranslations(lang);
+const variants = memes[lang].notFound;
+const first = variants[0]!;
 ---
 
 <Base title="404">
   <div class="container">
-    <TerminalWindow title="~/404" command={`cd ${Astro.url.pathname}`}>
+    <TerminalWindow title="~/404" command="cd ./page-demandee">
       <h1>{t('notFound.title')}</h1>
-      <pre class="meme" aria-hidden="true">{`   ¯\\_(ツ)_/¯`}</pre>
-      <p class="cursor">{t('notFound.text')}</p>
+      <div class="variant" data-variants={JSON.stringify(variants)}>
+        <pre class="meme" aria-hidden="true">{first.art}</pre>
+        <p class="text cursor">{first.text}</p>
+      </div>
       <p>
         <a href={localePath(lang, '/')}>&gt; {t('notFound.back')}</a>
       </p>
@@ -25,5 +30,23 @@ const t = useTranslations(lang);
     font-size: var(--step-2);
     color: var(--accent-2);
     margin: 0 0 var(--space-3);
+    white-space: pre;
+    overflow-x: auto;
   }
 </style>
+
+<script>
+  import { pickOne, readData } from '../lib/random';
+
+  const el = document.querySelector('.variant');
+  const variants = readData<{ art: string; text: string }[]>(el, 'variants');
+  if (el && variants?.length) {
+    const v = pickOne(variants);
+    el.querySelector('.meme')!.textContent = v.art;
+    el.querySelector('.text')!.textContent = v.text;
+  }
+  // Show the path the visitor actually typed.
+  const prompt = document.querySelector('.prompt');
+  const ps1 = prompt?.querySelector('.ps1');
+  if (prompt && ps1) prompt.replaceChildren(ps1, ` cd ${location.pathname}`);
+</script>

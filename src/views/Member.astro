@@ -14,6 +14,7 @@ const lang = Astro.currentLocale as Lang;
 const t = useTranslations(lang);
 const { name, photo, links, embed, gigs, gallery } = member.data;
 const bio = pick(member.data.bio, lang);
+const photoAlt = pick(member.data.photoAlt, lang);
 const og = await getImage({ src: photo, width: 1200, height: 1200, fit: 'cover', format: 'jpg' });
 const gigsSorted = [...gigs].sort((a, b) => b.date.getTime() - a.date.getTime());
 const path = `~/members/${member.id}`;
@@ -29,7 +30,15 @@ const path = `~/members/${member.id}`;
 
     <TerminalWindow title={path} command={`whoami`}>
       <div class="profile">
-        <Image class="photo" src={photo} alt={name} width={600} height={600} fit="cover" />
+        <Image
+          class="photo"
+          src={photo}
+          alt={photoAlt ?? name}
+          title={photoAlt}
+          width={600}
+          height={600}
+          fit="cover"
+        />
         <div>
           <h1>{name}</h1>
           {bio && bio.split(/\n{2,}/).map((p) => <p class="bio">{p}</p>)}

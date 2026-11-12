@@ -7,6 +7,7 @@ import EventCard from '../components/EventCard.astro';
 import { localePath, useTranslations, type Lang } from '../i18n/ui';
 import { getEvents, getMembers } from '../lib/content';
 import logoSrc from '../assets/logo.png';
+import { memes, type BootStatus } from '../data/memes';
 
 const lang = Astro.currentLocale as Lang;
 const t = useTranslations(lang);
@@ -14,10 +15,11 @@ const members = await getMembers();
 const { upcoming, past } = await getEvents();
 const logo = await getImage({ src: logoSrc, width: 1200, format: 'webp' });
 
-const boot = [
+// First and last lines are fixed; the 2 middle ones are re-rolled client-side on each visit.
+const pool = memes[lang].boot;
+const boot: [BootStatus, string][] = [
   ['OK', 'mounting /dev/subwoofer'],
-  ['OK', 'loading memes .......... 100%'],
-  ['OK', 'syncing paris <-> toulouse'],
+  ...pool.slice(0, 2),
   ['OK', `${members.length} djs online`],
 ];
 ---
@@ -28,10 +30,14 @@ const boot = [
       <h1 class="logo" style={`--logo: url(${logo.src})`}>
         <span class="sr-only">C.R.E.M.E</span>
       </h1>
-      <ol class="boot" aria-hidden="true">
+      <ol class="boot" aria-hidden="true" data-pool={JSON.stringify(pool)}>
         {boot.map(([status, line], i) => (
           <li style={`--i: ${i}`}>
-            [ <span class="ok">{status}</span> ] {line}
+            [{' '}
+            <span class="status" data-status={status}>
+              {status}
+            </span>{' '}
+            ] <span class="line">{line}</span>
           </li>
         ))}
       </ol>
@@ -102,8 +108,14 @@ const boot = [
     animation: appear 0.01s forwards;
     animation-delay: calc(var(--i) * 250ms + 200ms);
   }
-  .ok {
+  .status {
     color: var(--accent);
+  }
+  .status[data-status='WARN'] {
+    color: var(--warn);
+  }
+  .status[data-status='FAIL'] {
+    color: var(--accent-2);
   }
   .tagline {
     font-family: var(--font-pixel);
@@ -135,3 +147,21 @@ const boot = [
     }
   }
 </style>
+
+<script>
+  import { pickMany, readData } from '../lib/random';
+
+  // Re-roll the 2 middle boot lines on every visit.
+  const boot = document.querySelector('.boot');
+  const pool = readData<[string, string][]>(boot, 'pool');
+  const items = boot?.querySelectorAll('li');
+  if (pool && items && items.length >= 4) {
+    pickMany(pool, 2).forEach(([status, line], i) => {
+      const li = items[i + 1]!;
+      const statusEl = li.querySelector<HTMLElement>('.status')!;
+      statusEl.textContent = status;
+      statusEl.dataset.status = status;
+      li.querySelector('.line')!.textContent = line;
+    });
+  }
+</script>

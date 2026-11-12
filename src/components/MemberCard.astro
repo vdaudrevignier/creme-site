@@ -1,6 +1,6 @@
 ---
 import { Image } from 'astro:assets';
-import { localePath, type Lang } from '../i18n/ui';
+import { localePath, pick, type Lang } from '../i18n/ui';
 import type { Member } from '../lib/content';
 
 interface Props {
@@ -13,7 +13,14 @@ const { member, lang } = Astro.props;
 
 <a class="card" href={localePath(lang, `/members/${member.id}`)}>
   <div class="photo">
-    <Image src={member.data.photo} alt="" width={400} height={400} fit="cover" />
+    <Image
+      src={member.data.photo}
+      alt=""
+      title={pick(member.data.photoAlt, lang)}
+      width={400}
+      height={400}
+      fit="cover"
+    />
   </div>
   <span class="name">
     <span class="dim">&gt;</span> {member.data.name}
