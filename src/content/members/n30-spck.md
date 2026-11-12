@@ -1,6 +1,6 @@
 ---
 name: N30_SPCK
-order: 5
+order: 4
 photo: ../../assets/members/n30-spck.jpg
 bio:
   en: //Bass//Bigger Bass//Sounds//

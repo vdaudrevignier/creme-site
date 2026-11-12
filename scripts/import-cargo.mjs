@@ -18,6 +18,8 @@ const CONTENT = join(ROOT, 'src/content');
 
 // Manual fixes applied on top of the scraped text.
 const TEXT_FIXES = [['Oiginal', 'Original']];
+// Former members still listed on Cargo, not to be imported.
+const EXCLUDED = new Set(['maxius']);
 
 const decode = (s) =>
   s
@@ -146,8 +148,9 @@ async function main() {
     /hash="([A-Z0-9]+)"[^>]*href="([^"]+)" [^>]*rel="history"[\s\S]*?<figcaption[^>]*>([^<]+)</g;
   let order = 0;
   for (const [, photoHash, cargoSlug, caption] of home.matchAll(memberRe)) {
-    order += 1;
     const slug = slugify(cargoSlug.replace(/-\d+$/, ''));
+    if (EXCLUDED.has(slug)) continue;
+    order += 1;
     const html = await fetchText(`${BASE}/${cargoSlug}`);
     const content = pageContent(html, cargoSlug) ?? '';
     const media = { ...homeMedia, ...mediaIndex(html) };

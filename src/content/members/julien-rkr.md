@@ -1,6 +1,6 @@
 ---
 name: JULIEN RKR
-order: 9
+order: 8
 photo: ../../assets/members/julien-rkr.jpg
 bio:
   en: |-

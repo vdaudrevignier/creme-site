@@ -1,6 +1,6 @@
 ---
 name: DJ PALOMAN
-order: 7
+order: 6
 photo: ../../assets/members/dj-paloman.jpg
 links:
   instagram: https://www.instagram.com/palomandjakag/

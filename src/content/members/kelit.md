@@ -1,6 +1,6 @@
 ---
 name: KELIT
-order: 8
+order: 7
 photo: ../../assets/members/kelit.png
 bio:
   en: here we come ⋉⋉⋉⋉⋉⋉⋉⋉

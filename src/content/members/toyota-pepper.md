@@ -1,6 +1,6 @@
 ---
 name: TOYOTA PEPPER
-order: 6
+order: 5
 photo: ../../assets/members/toyota-pepper.jpg
 bio:
   en: |-
