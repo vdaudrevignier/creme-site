@@ -23,4 +23,6 @@ gallery:
   - ../../assets/members/dj-dormir/01.jpg
   - ../../assets/members/dj-dormir/02.jpg
   - ../../assets/members/dj-dormir/03.jpg
+  - ../../assets/members/dj-dormir/04.jpg
+  - ../../assets/members/dj-dormir/05.jpg
 ---
